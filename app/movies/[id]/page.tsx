@@ -10,14 +10,14 @@ type Props = {
 export default async function MoviePage({ params }: Props) {
     const request_headers = await headers();
 
-    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
-    const host = request_headers.get('host') ?? 'localhost:3000';
-    const baseUrl = `${protocol}://${host}`;
+    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https'
+    const host = request_headers.get('host') ?? 'localhost:3000'
+    const baseUrl = `${protocol}://${host}`
 
-    const res = await fetch(`${baseUrl}/movie/?id=${(await params).id}`);
-    const movie: Movie = await res.json();
+    const res = await fetch(`${baseUrl}/movie/?id=${(await params).id}`)
+    const movie: Movie = await res.json()
 
     return (
         <MovieDetail {...movie} />
-    );
+    )
 }
