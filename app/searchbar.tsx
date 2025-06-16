@@ -56,5 +56,5 @@ export const SearchBar = ({ onSearch, placeholder }: SearchBarProps) => {
                 </select>
             </div>
         </div>
-    );
-};
+    )
+}
