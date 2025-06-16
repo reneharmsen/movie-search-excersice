@@ -13,7 +13,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     return (
         <html lang="en" data-theme="corporate" className="bg-secondary">
             <body className={inter.className}>
-                NEENEE
                 {children}</body>
         </html>
     );
