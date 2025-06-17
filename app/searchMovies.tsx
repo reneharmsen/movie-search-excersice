@@ -5,6 +5,7 @@ import { Movie } from './_types/movie';
 import Image from 'next/image';
 import Link from 'next/link';
 import _  from 'lodash';
+import slugify from 'slugify';
 
 export const SearchMovies = () => {
     const [movieResults, setMovieResults] = useState<Movie[]>([]);
@@ -33,6 +34,7 @@ export const SearchMovies = () => {
             {pages > 1 && (
                 <div className="flex justify-center gap-2 my-8 px-4">
                     {Array.from({ length: pages }, (_, i) => i + 1).map((page) => (
+
                         <button
                             key={page}
                             className={`btn btn-sm ${page === currentPage ? 'btn-primary' : 'btn-ghost'}`}
@@ -48,7 +50,7 @@ export const SearchMovies = () => {
                 {movieResults.length > 0 &&
                     movieResults.map((movie) => {
                         return (
-                            <Link href={`./movies/${movie.id}`} prefetch={false} key={movie.id} 
+                            <Link href={`./movies/${movie.id}/${slugify(movie.title, { lower: true })}`} key={movie.id} 
                                 className="card bg-neutral-content shadow-xl basis-96 hover:shadow-2xl transition-shadow 
                                 duration-300 hover:scale-105 cursor-pointer">
                                 <div className="card-body">

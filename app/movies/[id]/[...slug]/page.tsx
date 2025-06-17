@@ -1,10 +1,28 @@
-import { Movie } from '../../_types/movie';
+import { Movie } from '../../../_types/movie';
 import { headers } from 'next/headers';
+
 import MovieDetail from '@/app/movieDetail';
+
 
 type Props = {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export async function generateStaticParams() {
+    const res  = await fetch('https://api.themoviedb.org/3/discover/movie',
+    {
+      headers: {
+          accept: 'application/json',
+          Authorization: 'Bearer ' + process.env.MOVIE_DB_TOKEN,
+      },
+    })
+  
+    const data = await res.json();
+    const movies: Movie[] = data.results;
+    
+    return movies.map(movie => ({
+      id: movie.id.toString()
+    }));
 }
 
 export default async function MoviePage({ params }: Props) {
@@ -14,12 +32,10 @@ export default async function MoviePage({ params }: Props) {
     const host = request_headers.get('host') ?? 'localhost:3000'
     const baseUrl = `${protocol}://${host}`
 
-    console.log(`Fetching movie details from: ${baseUrl}/movie/?id=${(await params).id}`)
-
     const res = await fetch(`${baseUrl}/movie/?id=${(await params).id}`)
     const movie: Movie = await res.json()
 
     return (
       <MovieDetail {...movie} />
     )
-}
+}  
