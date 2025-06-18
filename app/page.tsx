@@ -1,10 +1,13 @@
 import Image from 'next/image';
 import { SearchMovies } from './searchMovies';
+import { Suspense } from 'react';
 
 export default function Home() {
     return (
         <main className="container mx-auto">
-            <SearchMovies></SearchMovies>
+            <Suspense>
+                <SearchMovies></SearchMovies>
+            </Suspense>
         </main>
     );
 }

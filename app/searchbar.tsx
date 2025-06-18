@@ -1,37 +1,54 @@
 'use client';
-import React, { ChangeEvent, KeyboardEventHandler, useState } from 'react';
+import React, { ChangeEvent, KeyboardEventHandler, useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface SearchBarProps {
-    onSearch: (searchTerm: string, sortBy: string) => void;
+    onSearch: (searchTerm: string, sortBy: string, page: number, init?: boolean) => void;
     placeholder?: string;
 }
 
 export const SearchBar = ({ onSearch, placeholder }: SearchBarProps) => {
-    const [searchInput, setSearchInput] = useState('');
-    const [sortBy, setSortBy] = useState('popularity');
+    const searchParams = useSearchParams();
+    const page  = searchParams.get('currentPage') ? parseInt(searchParams.get('currentPage')!) : 1;
+    const [query, setQuery] = useState(searchParams.get('query') || '');
+    const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || 'popularity');
+
+    console.log(page);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
-        setSearchInput(e.target.value);
+        setQuery(e.target.value);
     };
 
     const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
-            onSearch(searchInput, sortBy);
+            onSearch(query, sortBy, page);
         }
     };
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        onSearch(searchInput, sortBy);
+        onSearch(query, sortBy, page);
     };
 
 
     const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         e.preventDefault();
+
+        onSearch(query, e.target.value, page);
         setSortBy(e.target.value);
-        onSearch(searchInput, sortBy);
     };
+
+    useEffect(() => {
+        // const handleRouteChange = (event: PopStateEvent) =>  {
+        //     console.log('Route changed');
+        //     onSearch(query, sortBy, page);
+        // };
+
+        // window.addEventListener('popstate', handleRouteChange);
+
+        onSearch(query, sortBy, page, true);
+    }, [])
 
     return (
         <div className="flex justify-center m-6">
@@ -39,7 +56,7 @@ export const SearchBar = ({ onSearch, placeholder }: SearchBarProps) => {
                 <input
                     className="input input-bordered join-item rounded-l-md w-96"
                     type="search"
-                    value={searchInput}
+                    value={query}
                     onChange={handleChange}
                     onKeyUp={handleKeyPress}
                     placeholder="Search Movies"
@@ -51,7 +68,6 @@ export const SearchBar = ({ onSearch, placeholder }: SearchBarProps) => {
 
                 <select className="select select-bordered join-item rounded-r-md" onChange={handleSortChange}>
                     <option value="popularity">Popularity</option>
-
                     <option value="release_date">Release date</option>
                 </select>
             </div>

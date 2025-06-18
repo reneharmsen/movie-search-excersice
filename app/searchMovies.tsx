@@ -1,5 +1,6 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { SearchBar } from './searchbar';
 import { Movie } from './_types/movie';
 import Image from 'next/image';
@@ -8,13 +9,16 @@ import _  from 'lodash';
 import slugify from 'slugify';
 
 export const SearchMovies = () => {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
     const [movieResults, setMovieResults] = useState<Movie[]>([]);
     const [pages, setPages] = useState(0);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [query, setQuery] = useState('');
-    const [sortBy, setSortBy] = useState('popularity');
+    const [currentPage, setCurrentPage] = useState(searchParams.get('currentPage') ? parseInt(searchParams.get('currentPage')!) : 1)
+    const [query, setQuery] = useState(searchParams.get('query') || '');
+    const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || 'popularity');
 
-    const onSearch = async (query: string, sortBy: string, page: number = 1) => {
+    const onSearch = async (query: string, sortBy: string, page: number = 1, init: boolean = false) => {
         const rawResponse = await fetch(`/search?movieQuery=${query}&page=${page}&sortBy=${sortBy}`)
         const response = await rawResponse.json()
         const sorted = _.orderBy(response.movies, sortBy, ['desc']);
@@ -23,9 +27,20 @@ export const SearchMovies = () => {
         setMovieResults(sorted)
         setPages(response.total_pages)
         setQuery(query)
+        setCurrentPage(page) 
 
-        setCurrentPage(page)
-    };
+        if(query !== '' || sortBy !== 'popularity' || page !== 1) {
+            const queryParams = new URLSearchParams({
+                query: query,
+                sortBy: sortBy,
+                currentPage: page.toString(),
+            })
+
+            if(!init) {
+                router.push(`/?${queryParams.toString()}`)
+            } 
+        }
+    }
 
     return (
         <>
