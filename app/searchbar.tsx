@@ -9,11 +9,9 @@ interface SearchBarProps {
 
 export const SearchBar = ({ onSearch, placeholder }: SearchBarProps) => {
     const searchParams = useSearchParams();
-    const page  = searchParams.get('currentPage') ? parseInt(searchParams.get('currentPage')!) : 1;
+    const page = 1;
     const [query, setQuery] = useState(searchParams.get('query') || '');
     const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || 'popularity');
-
-    console.log(page);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
@@ -39,14 +37,8 @@ export const SearchBar = ({ onSearch, placeholder }: SearchBarProps) => {
         setSortBy(e.target.value);
     };
 
+    
     useEffect(() => {
-        // const handleRouteChange = (event: PopStateEvent) =>  {
-        //     console.log('Route changed');
-        //     onSearch(query, sortBy, page);
-        // };
-
-        // window.addEventListener('popstate', handleRouteChange);
-
         onSearch(query, sortBy, page, true);
     }, [])
 
