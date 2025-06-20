@@ -2,6 +2,7 @@ import { Movie } from '../../../_types/movie';
 import { headers } from 'next/headers';
 
 import MovieDetail from '@/app/movieDetail';
+import { time } from 'console';
 
 export const revalidate = 30;
 
@@ -9,18 +10,27 @@ type Props = {
   params: Promise<{ id: string }>
 }
 
+function getToken() {
+  const token = process.env.MOVIE_DB_TOKEN || null;
+  if (token === null) {
+    throw new Error('MOVIE_DB_TOKEN is not defined in the environment variables');
+  }
+  return token;
+}
+
 export async function generateStaticParams() {
-    console.log('Generating static params for movies...');
+    const token = getToken();
 
     try {
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
       const res  = await fetch('https://api.themoviedb.org/3/discover/movie',
       {
         headers: {
             accept: 'application/json',
-            Authorization: 'Bearer ' + process.env.MOVIE_DB_TOKEN,
+            Authorization: 'Bearer ' + token
         },
       })
-    
+
       const data = await res.json();
       const movies: Movie[] = data.results;
       
@@ -38,6 +48,7 @@ export async function generateStaticParams() {
 
 export default async function MoviePage({ params }: Props) {
     const request_headers = await headers();
+    const timeStamp = new Date().toISOString();
 
     const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https'
     const host = request_headers.get('host') ?? 'localhost:3000'
@@ -47,6 +58,9 @@ export default async function MoviePage({ params }: Props) {
     const movie: Movie = await res.json()
 
     return (
-      <MovieDetail {...movie} />
+      <>
+        <div className="hidden">${timeStamp}</div>
+        <MovieDetail {...movie} />
+      </>
     )
 }  
