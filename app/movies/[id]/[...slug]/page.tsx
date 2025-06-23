@@ -50,8 +50,8 @@ export default async function MoviePage({ params }: Props) {
     const request_headers = await headers();
     const timeStamp = new Date().toISOString();
 
-    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https'
     const host = request_headers.get('host') ?? 'localhost:3000'
+    const protocol =    host.indexOf('localhost') !== -1 ? 'http' : 'https' 
     const baseUrl = `${protocol}://${host}`
 
     const res = await fetch(`${baseUrl}/movie/?id=${(await params).id}`)
@@ -59,8 +59,9 @@ export default async function MoviePage({ params }: Props) {
 
     return (
       <>
+      ${process.env.NODE_ENV}
         <div className="hidden">${timeStamp}</div>
-        <MovieDetail {...movie} />
+        { <MovieDetail {...movie} /> }
       </>
     )
 }  
