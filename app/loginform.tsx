@@ -1,10 +1,27 @@
-import { login } from '@/app/actions/auth'
+'use client'
 
-export default function SignupForm() {
+import { auth_login } from '@/app/actions/auth'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+
+export default  function SignupForm() {
+ const [loginError, setLoginError] = useState(false)
+ const router = useRouter();
+
+ const handleLogin = async(form:FormData) => {
+    var hasLoginError = await auth_login(form);
+
+    setLoginError(hasLoginError);   
+
+    if(!hasLoginError) {
+        router.push('/mymovies');
+    }
+ }
+
  return (
         <>
             <form
-                action={login}
+                action={handleLogin}
                 style={{ 
                     display: 'flex',
                     flexDirection: 'column',
@@ -57,6 +74,7 @@ export default function SignupForm() {
                 >
                     Login
                 </button>
+                {loginError && <span>User not found.</span>}
             </form>
         </>
     );

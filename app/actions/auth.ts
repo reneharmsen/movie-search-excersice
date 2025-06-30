@@ -1,31 +1,24 @@
+'use server'
+
 import { neon } from '@neondatabase/serverless'
-import bcrypt from 'bcrypt';
-import { SignupFormSchema, FormState } from '@/app/lib/definitions'
+import * as bcrypt from 'bcrypt';
  
-export async function login(form: FormData) {
-     'use server'
-    const sql = neon(`${process.env.DATABASE_URL}`);
+export async function auth_login(form: FormData) {
+    const sql = neon(`${process.env.DATABASE_URL}`)
     
-    const username = form.get('username');
-    const passwordRaw = form.get('password');
+    const username = form.get('username')
+    const passwordRaw = form.get('password')
+    const password = typeof passwordRaw === 'string' ? passwordRaw : '';
 
-    const salt = bcrypt.genSaltSync(10);
-    const password = await bcrypt.hash(
-        typeof passwordRaw === 'string' ? passwordRaw : '',
-        salt
-    );
-
-    const user = await sql`SELECT * FROM users WHERE username = ${username} and hashed_password = ${password};`;
-
-    if (!user.length) {
-        throw new Error('User not found');
+    const storedPassword = await sql`SELECT hashed_password FROM users WHERE username = ${username}`;
+    if (!storedPassword.length) {
+        return false;
     }
 
-    // User is authenticated
+    return await bcrypt.compare(password, (storedPassword[0]?.hashed_password as string))
 }
 
-export async function register(form: FormData) {
-   'use server'
+export async function auth_register(form: FormData) {
     const sql = neon(`${process.env.DATABASE_URL}`);
     
     const username = form.get('username');
@@ -37,5 +30,6 @@ export async function register(form: FormData) {
         salt
     );
 
-    await sql`INSERT INTO users (username, hashed_password, created_at) VALUES (${username}, ${password}, NOW()) ON CONFLICT (username) DO NOTHING;`;
+    const inserted = await sql`INSERT INTO users (username, hashed_password, created_at) VALUES (${username}, ${password}, NOW()) ON CONFLICT (username) DO NOTHING;`;
+    return inserted.length === 1;
 }    
