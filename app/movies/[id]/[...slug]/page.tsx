@@ -59,7 +59,6 @@ export default async function MoviePage({ params }: Props) {
 
     return (
       <>
-      ${process.env.NODE_ENV}
         <div className="hidden">${timeStamp}</div>
         { <MovieDetail {...movie} /> }
       </>

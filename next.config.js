@@ -6,7 +6,7 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: 'image.tmdb.org',
                 port: '',
-                pathname: '**',
+                pathname: '/**',
             },
         ],
     },
@@ -16,3 +16,5 @@ const nextConfig = {
     },
   },
 };
+
+module.exports = nextConfig;
