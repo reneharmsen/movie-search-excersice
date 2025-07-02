@@ -1,10 +1,11 @@
 import { NextRequest } from 'next/server';
 import { Movie } from '../_types/movie';
 
-export async function GET(request: NextRequest) {
-
+export async function POST(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
-    const id = searchParams.get('id');
+    
+    const userId = searchParams.get('userId');
+    const movieId = searchParams.get('movieId');
 
     const res = await fetch(
         'https://api.themoviedb.org/3/movie/' + id,

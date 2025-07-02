@@ -9,11 +9,11 @@ export default  function SignupForm() {
  const router = useRouter();
 
  const handleLogin = async(form:FormData) => {
-    var hasLoginError = await auth_login(form);
+    const hasLoggedIn  = await auth_login(form);
 
-    setLoginError(hasLoginError);   
+    setLoginError(!hasLoggedIn);   
 
-    if(!hasLoginError) {
+    if(hasLoggedIn) {
         router.push('/mymovies');
     }
  }

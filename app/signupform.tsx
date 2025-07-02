@@ -1,6 +1,13 @@
-import { register } from '@/app/actions/auth'
+'use client'
+
+import { auth_register } from '@/app/actions/auth'
 
 export default function LoginForm() {
+    
+    const register = async(form:FormData) => {
+        auth_register(form);
+    }
+
     return (
         <>
              <form
