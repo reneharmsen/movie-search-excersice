@@ -5,32 +5,41 @@ import * as bcrypt from 'bcrypt';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 
-export async function auth_login(form: FormData) {
+const JWT_SECRET = process.env.JWT_SECRET ?? '';
+const AUTH_COOKIE_NAME = 'auth-token'
+
+export async function auth_loginUser(form: FormData) {
     const sql = neon(`${process.env.DATABASE_URL}`)
-    const JWT_SECRET =  process.env.JWT_SECRET ?? '';
     
     const username = form.get('username')
     const passwordRaw = form.get('password')
     const password = typeof passwordRaw === 'string' ? passwordRaw : '';
 
-    const storedPassword = await sql`SELECT hashed_password FROM users WHERE username = ${username}`;
-    if (!storedPassword.length) {
+    const user = await sql`SELECT id, username, hashed_password FROM users WHERE username = ${username}`;
+    if (!user.length) {
         return false;
     }
 
-    if(await bcrypt.compare(password, (storedPassword[0]?.hashed_password as string))) {
+    if(await bcrypt.compare(password, (user[0]?.hashed_password as string))) {
+        const token = jwt.sign({ 
+            "sub": user[0]?.id,
+            "username": user[0]?.username
+        }, JWT_SECRET, { expiresIn: '7d' });
 
-        const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '7d' });
-        (await cookies()).set('auth-token', token, {
+        (await cookies()).set(AUTH_COOKIE_NAME, token, {
             httpOnly: true, 
             secure: true,
             path: '/',
-            maxAge: 60 * 60 * 24 * 7,
+            maxAge: 60 * 60 * 24 * 7
         });
+
+        return true;
     }
+
+    return false;
 }
 
-export async function auth_register(form: FormData) {
+export async function auth_registerUser(form: FormData) {
     const sql = neon(`${process.env.DATABASE_URL}`);
     
     const username = form.get('username');
@@ -46,4 +55,19 @@ export async function auth_register(form: FormData) {
     return inserted.length === 1;
 }    
 
-export async 
+export async function auth_getUser() {
+    const jwtTokenValue =  (await cookies()).get(AUTH_COOKIE_NAME)?.value  
+    
+    if (!jwtTokenValue) {
+        return null;
+    }
+
+    try {
+        const decoded = jwt.verify(jwtTokenValue, JWT_SECRET)  
+        return decoded;
+    }
+    catch(err) {
+        return null;
+    }
+}
+

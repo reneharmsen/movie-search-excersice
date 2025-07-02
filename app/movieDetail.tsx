@@ -3,9 +3,18 @@
 import Image from 'next/image';
 import { Movie } from './_types/movie';
 import { useState } from 'react';
-
+import { auth_getUser } from './actions/auth'
 
 export default function MovieDetail(movie: Movie) {
+
+    const toggleLike = async(state: boolean) => {
+        const userName = auth_getUser()
+
+        console.log(userName)
+
+        setLiked(state)
+    }
+
     const [liked, setLiked] = useState(false)
     const releaseDate = new Date(movie.release_date);
 
@@ -51,13 +60,13 @@ export default function MovieDetail(movie: Movie) {
                     <div className="mt-4">
                         {liked 
                             ? 
-                        <button className="btn btn-primary gap-2" aria-label="Unlike Movie" onClick={() => setLiked(false)}>
+                        <button className="btn btn-primary gap-2" aria-label="Unlike Movie" onClick={() => toggleLike(false)}>
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                                     <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L12 8.344l3.172-3.172a4 4 0 115.656 5.656L12 19.656l-8.828-8.828a4 4 0 010-5.656z" clipRule="evenodd" />
                                 </svg>
                         </button>                                
                             :       
-                        <button className="btn btn-primary gap-2" aria-label="Like Movie" onClick={() => setLiked(true)}>
+                        <button className="btn btn-primary gap-2" aria-label="Like Movie" onClick={() => toggleLike(true)}>
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                 </svg>

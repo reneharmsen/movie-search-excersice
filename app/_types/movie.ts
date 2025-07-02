@@ -13,3 +13,4 @@ export interface Movie {
     imdb_id: string;
     popularity: number;
 }
+

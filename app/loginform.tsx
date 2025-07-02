@@ -1,6 +1,6 @@
 'use client'
 
-import { auth_login } from '@/app/actions/auth'
+import { auth_loginUser } from '@/app/actions/auth'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
@@ -9,7 +9,7 @@ export default  function SignupForm() {
  const router = useRouter();
 
  const handleLogin = async(form:FormData) => {
-    const hasLoggedIn  = await auth_login(form);
+    const hasLoggedIn  = await auth_loginUser(form);
 
     setLoginError(!hasLoggedIn);   
 
