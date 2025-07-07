@@ -10,11 +10,14 @@ export async function middleware(request: NextRequest) {
     if (!isProtectedPath) return;
 
     try { 
-        const jwtTokenValue =  (await cookies()).get(AUTH_COOKIE_NAME)?.value  
-        await jwtVerify(jwtTokenValue!, JWT_SECRET);
-        return;
-    }
-    catch(err) {}
+        const token =  (await cookies()).get(AUTH_COOKIE_NAME)?.value  
+        await jwtVerify(token!, JWT_SECRET)
 
-    return NextResponse.redirect(new URL("/login", request.url));
+        return NextResponse.next()
+    }
+    catch(err) {
+        console.error("JWT verification failed:", err);
+    }
+
+    return NextResponse.redirect(new URL("/login", request.url))
 } 

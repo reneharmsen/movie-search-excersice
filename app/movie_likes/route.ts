@@ -1,28 +1,35 @@
-import { NextRequest } from 'next/server';
-import { Movie } from '../_types/movie';
+import { NextRequest, NextResponse } from 'next/server';
+import { neon } from '@neondatabase/serverless'
+
+const sql = neon(`${process.env.DATABASE_URL}`)
 
 export async function POST(request: NextRequest) {
-    const searchParams = request.nextUrl.searchParams;
-    
-    const userId = searchParams.get('userId');
-    const movieId = searchParams.get('movieId');
+    const { userId, movieId } = await request.json()
+    if(userId == null || movieId == null) {
+        return NextResponse.json({ message: `Bad request. Expected userId & movieId.` }, { status: 400 })
+    }
 
-    const res = await fetch(
-        'https://api.themoviedb.org/3/movie/' + id,
-        {
-            headers: {
-                accept: 'application/json',
-                Authorization: 'Bearer ' + process.env.MOVIE_DB_TOKEN,
-            },
-        }
-    );
+    try {
+        await sql`INSERT INTO "User_Movie" VALUES (${userId}, ${movieId})`
+    }
+    catch(err) {
+        return NextResponse.json({ message: `Error: ${err}` }, { status: 500 })
+    }
 
-    const data = await res.json();
-    const movie: Movie = data;
-
-    return Response.json(movie);
+    return NextResponse.json({ message: 'OK' }, { status: 200 })
 }
 
+export async function GET(request: NextRequest) {
+    const params = request.nextUrl.searchParams;
+    let movieIds:number[] = [];
 
+    try {
+        const result = await sql`SELECT "movieId" FROM "User_Movie" WHERE "userId" = ${params.get('userId')}`  
+        movieIds = result.map(row => row.movieId)
+    }
+    catch(err) {
+        return NextResponse.json({ message: `Error: ${err}` }, { status: 500 })     
+    }
 
-
+    return NextResponse.json({ result: movieIds }, { status: 200 })        
+}

@@ -57,16 +57,16 @@ export async function auth_registerUser(form: FormData) {
 
 export async function auth_getUser() {
     const jwtTokenValue =  (await cookies()).get(AUTH_COOKIE_NAME)?.value  
-    
+
     if (!jwtTokenValue) {
         return null;
     }
 
     try {
-        const decoded = jwt.verify(jwtTokenValue, JWT_SECRET)  
-        return decoded;
+        return jwt.verify(jwtTokenValue, JWT_SECRET)  
     }
     catch(err) {
+        console.error(err);
         return null;
     }
 }

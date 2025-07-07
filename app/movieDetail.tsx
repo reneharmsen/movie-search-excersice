@@ -8,10 +8,18 @@ import { auth_getUser } from './actions/auth'
 export default function MovieDetail(movie: Movie) {
 
     const toggleLike = async(state: boolean) => {
-        const userName = auth_getUser()
+        const user = await auth_getUser()
+        if(!user) {
+            return
+        }
 
-        console.log(userName)
-
+        const res = await fetch(`/movie_likes`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },    
+            body: JSON.stringify({userId: user.sub, movieId: movie.id})
+        })
         setLiked(state)
     }
 
